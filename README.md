@@ -56,6 +56,15 @@ APP_PORT=8080 docker compose up
 
 ### `GET /`
 
+Returns **only** the total supply value as plain text, already formatted with
+`decimals` (whole XRT). Query param `?force=true` — bypass the cache.
+
+```
+5119335.029711074
+```
+
+### `GET /full`
+
 Query param `?force=true` — bypass the cache and hit the network directly.
 
 Example response:

@@ -1,13 +1,29 @@
 import express from 'express';
 import { config } from './config.js';
+import { formatPlanck } from './format.js';
 import { disconnectAll } from './polkadot.js';
 import { getTotalSupply } from './supply.js';
 
 export function createApp() {
   const app = express();
 
-  // Main endpoint: combined XRT total supply (Robonomics + Asset Hub).
+  // Plain total supply value, formatted with token decimals.
   app.get('/', async (req, res) => {
+    try {
+      const force = req.query.force === 'true';
+      const data = await getTotalSupply({ force });
+      res.type('text/plain').send(formatPlanck(data.totalSupply, data.decimals));
+    } catch (err) {
+      console.error('[server] failed to fetch total supply:', err);
+      res.status(502).json({
+        error: 'Failed to fetch total supply from parachains',
+        message: err?.message || String(err),
+      });
+    }
+  });
+
+  // Main endpoint: combined XRT total supply (Robonomics + Asset Hub).
+  app.get('/full', async (req, res) => {
     try {
       const force = req.query.force === 'true';
       const data = await getTotalSupply({ force });
